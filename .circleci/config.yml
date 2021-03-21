@@ -49,7 +49,7 @@ jobs:
 #            mysql -h 127.0.0.1 -u user -ppassw0rd test_db < sql-data/dummy.sql
 #            mysql -h 127.0.0.1 -u user -ppassw0rd --execute="SELECT * FROM test_db.Persons"
       # No password is required for the MySQL user `ubuntu`
-      - run: mysql -u ubuntu -e "create database wordpress"
+      - run: mysql -h 127.0.0.1 -u ubuntu -e "create database wordpress"
 
       # Use cURL to fetch WP-CLI
       - run: curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
