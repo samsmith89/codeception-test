@@ -17,8 +17,8 @@ jobs:
           password: 7FsHD@Wek92x  # context / project UI env-var reference
         environment:
           MYSQL_ROOT_PASSWORD: rootpw
-          MYSQL_DATABASE: test_db
-          MYSQL_USER: user
+          MYSQL_DATABASE: wordpress
+          MYSQL_USER: ubuntu
           MYSQL_PASSWORD: passw0rd
 
       # Specify service dependencies here if necessary
@@ -64,7 +64,7 @@ jobs:
       - run: ./wp-cli.phar core config --allow-root --dbname=wordpress --dbuser=ubuntu --dbhost=localhost --path=wordpress
 
       # Install WordPress
-      - run: ./wp-cli.phar core install --allow-root --admin_name=admin --admin_password=admin --admin_email=admin@example.com --url=http://wppusher-plugin.dev:8080 --title=WordPress --path=wordpress
+      - run: ./wp-cli.phar core install --allow-root --admin_name=admin --admin_password=admin --admin_email=admin@example.com --url=http://test-plugin.dev:8080 --title=WordPress --path=wordpress
 
       # Clonse WP Pusher plugin from GitHub
       - run: ./wp-cli.phar plugin install classic-editor --activate
