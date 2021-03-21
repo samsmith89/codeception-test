@@ -59,10 +59,9 @@ jobs:
 
       # Download WordPress into `wordpress` directory
       - run: ./wp-cli.phar core download --allow-root --path=wordpress
-      - run: ./wp-cli.phar --info
 
       # Generate `wp-config.php` file
-      - run: ./wp-cli.phar core config --allow-root --dbname=wordpress --dbuser=ubuntu --dbhost=localhost --path=wordpress
+      - run: ./wp-cli.phar config create --allow-root --dbname=wordpress --dbuser=ubuntu [--dbpass=passw0rd] --path=wordpress
 
       # Install WordPress
       - run: ./wp-cli.phar core install --allow-root --admin_name=admin --admin_password=admin --admin_email=admin@example.com --url=http://test-plugin.dev:8080 --title=WordPress --path=wordpress
