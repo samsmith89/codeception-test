@@ -9,12 +9,12 @@ jobs:
       # Specify the version you desire here
       - image: circleci/php:7.3-apache-node-browsers
         auth:
-          username: mydockerhub-user
-          password: $DOCKERHUB_PASSWORD  # context / project UI env-var reference
+          username: gsamsmith
+          password: 7FsHD@Wek92x  # context / project UI env-var reference
       - image: circleci/mysql:8.0.4
         auth:
-          username: mydockerhub-user
-          password: $DOCKERHUB_PASSWORD  # context / project UI env-var reference
+          username: gsamsmith
+          password: 7FsHD@Wek92x  # context / project UI env-var reference
         environment:
           MYSQL_ROOT_PASSWORD: rootpw
           MYSQL_DATABASE: test_db
