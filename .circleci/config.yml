@@ -59,7 +59,7 @@ jobs:
 
       # Download WordPress into `wordpress` directory
       - run: ./wp-cli.phar core download --allow-root --path=wordpress
-      - run: ./wp-cli.phar wp --info
+      - run: ./wp-cli.phar --info
 
       # Generate `wp-config.php` file
       - run: ./wp-cli.phar core config --allow-root --dbname=wordpress --dbuser=ubuntu --dbhost=localhost --path=wordpress
