@@ -3,72 +3,65 @@
 # Check https://circleci.com/docs/2.0/language-php/ for more details
 #
 version: 2
-jobs:
-  build:
+executors:
+  docker-executor:
     docker:
-      # Specify the version you desire here
-      - image: circleci/php:7.3-apache-node-browsers
-        auth:
-          username: gsamsmith
-          password: 7FsHD@Wek92x  # context / project UI env-var reference
-      - image: circleci/mysql:5.7
-        auth:
-          username: gsamsmith
-          password: 7FsHD@Wek92x  # context / project UI env-var reference
-        environment:
-          MYSQL_ROOT_PASSWORD: rootpw
-          MYSQL_DATABASE: wordpress
-          MYSQL_USER: ubuntu
-          MYSQL_PASSWORD: passw0rd
-
-      # Specify service dependencies here if necessary
-      # CircleCI maintains a library of pre-built images
-      # documented at https://circleci.com/docs/2.0/circleci-images/
-      # Using the RAM variation mitigates I/O contention
-      # for database intensive operations.
-#      - image: circleci/mysql:5.7-ram
-      #
-      # - image: redis:2.8.19
-
+      - image: circleci/node
+jobs:
+  test_plugin:
+    executor: docker-executor
     steps:
+      - checkout
       - run:
-          # Our primary container isn't MYSQL so run a sleep command until it's ready.
-          name: Waiting for MySQL to be ready
-          command: |
-            for i in `seq 1 30`;
-            do
-              nc -z 127.0.0.1 3306 && echo Success && exit 0
-              echo -n .
-              sleep 1
-            done
-            echo Failed waiting for MySQL && exit 1
+          name: build plugin
+          command: cd frontend && npm install && npm run export
+      - setup_remote_docker
       - run:
-          name: Install MySQL CLI; Import dummy data; run an example query
+          name: Set up network
           command: |
-            sudo apt-get install default-mysql-client
-#            mysql -h 127.0.0.1 -u user -ppassw0rd test_db < sql-data/dummy.sql
-#            mysql -h 127.0.0.1 -u user -ppassw0rd --execute="SELECT * FROM test_db.Persons"
-      # No password is required for the MySQL user `ubuntu`
-#      - run: mysql -h 127.0.0.1 -u user -e "create database wordpress"
-
-      # Use cURL to fetch WP-CLI
-      - run: curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
-
-      # Make sure WP-CLI is executable
-      - run: chmod +x wp-cli.phar
-
-      # Download WordPress into `wordpress` directory
-      - run: ./wp-cli.phar core download --allow-root --path=wordpress
-
-      # Generate `wp-config.php` file
-      - run: ./wp-cli.phar config create --allow-root --dbname=wordpress --dbuser=ubuntu --dbpass=passw0rd --path=wordpress
-
-      # Install WordPress
-      - run: ./wp-cli.phar core install --allow-root --admin_name=admin --admin_password=admin --admin_email=admin@example.com --url=http://test-plugin.dev:8080 --title=WordPress --path=wordpress
-
-      # Clonse WP Pusher plugin from GitHub
-      - run: ./wp-cli.phar plugin install classic-editor --activate
-
+            docker network create wp-network
+      - run:
+          name: Set up database
+          command: |
+            docker run -d \
+              -e MYSQL_ROOT_PASSWORD=1234 \
+              -e MYSQL_DATABASE=wordpress \
+              --name db \
+              --network wp-network \
+              mysql:5.7
+      - run:
+          name: Setup WordPress
+          command: |
+            docker run -d \
+              -e WORDPRESS_DB_HOST=db:3306 \
+              -e WORDPRESS_DB_USER=root \
+              -e WORDPRESS_DB_PASSWORD=1234 \
+              -e WORDPRESS_DB_NAME=wordpress \
+              -e WORDPRESS_CONFIG_EXTRA="define('WP_SITEURL', 'http://' . \$_SERVER['HTTP_HOST']); define('WP_HOME', 'http://' . \$_SERVER['HTTP_HOST']);" \
+              --name wp-container \
+              --network wp-network \
+              wordpress
+      - run:
+          name: Install WordPress
+          command: |
+            docker run -it --rm \
+              --volumes-from wp-container \
+              --network wp-network \
+              wordpress:cli core install \
+                --url=localhost \
+                --title=test \
+                --admin_user=admin \
+                --admin_password=admin \
+                --admin_email=foo@bar.com
+      - run:
+          name: Install Relative URL Plugin
+          command: |
+            docker run -it --rm \
+              --volumes-from wp-container \
+              --user xfs \
+              --network wp-network \
+              wordpress:cli plugin install relative-url \
+                --activate \
       # And use WP-CLI to activate it
 #      - ./wp-cli.phar plugin activate classic-editor --path=wordpress
 #      - checkout
