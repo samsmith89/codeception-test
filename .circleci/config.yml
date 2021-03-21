@@ -8,10 +8,6 @@ jobs:
     docker:
       - image: circleci/php:7.1-apache-node-browsers # The primary container where steps are run
     steps:
-      - checkout
-      - run:
-          name: build plugin
-          command: cd frontend && npm install && npm run export
       - setup_remote_docker
       - run:
           name: Set up network
