@@ -13,6 +13,10 @@ jobs:
   test_plugin:
     executor: docker-executor
     steps:
+      - checkout
+      - run:
+          name: zip plugin
+          command: git archive -o tester.zip
       - setup_remote_docker
       - run:
           name: Set up network
@@ -54,7 +58,7 @@ jobs:
                 --admin_password=admin \
                 --admin_email=foo@bar.com
       - run:
-          name: Install Relative URL Plugin
+          name: Install Classic Editor
           command: |
             docker run -it --rm \
               mysql -V \
@@ -64,12 +68,17 @@ jobs:
               wordpress:cli plugin install classic-editor \
                 --activate \
       - run:
-          name: execute Ghost Inspector test(s)
+          name: copy Tester plugin
+          command: docker cp tester.zip wp-container:/var/www/html
+      - run:
+          name: Install tester plugin
           command: |
-            docker run \
-              -e APP_PORT=wp-container:80 \
-              -e NGROK_TOKEN=1q6F01SdLmpSt988S2jLRepTLp4_2dAWZMvj7pGfFJE8YRLtg \
+            docker run -it --rm \
+              --volumes-from wp-container \
+              --user xfs \
               --network wp-network \
+              wordpress:cli plugin install /var/www/html/tester.zip \
+                --activate
 
 workflows:
   test:
