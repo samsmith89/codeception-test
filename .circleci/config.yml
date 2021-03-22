@@ -60,7 +60,7 @@ jobs:
               --volumes-from wp-container \
               --user xfs \
               --network wp-network \
-              wordpress:cli plugin install relative-url \
+              wordpress:cli plugin install classic-editor \
                 --activate \
 
 workflows:
