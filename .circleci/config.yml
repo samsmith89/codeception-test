@@ -57,6 +57,7 @@ jobs:
           name: Install Relative URL Plugin
           command: |
             docker run -it --rm \
+              mysql -V \
               --volumes-from wp-container \
               --user xfs \
               --network wp-network \
