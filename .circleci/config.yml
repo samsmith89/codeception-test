@@ -16,7 +16,7 @@ jobs:
       - checkout
       - run:
           name: zip plugin
-          command: git archive
+          command: git archive --format=zip
       - setup_remote_docker
       - run:
           name: Set up network
