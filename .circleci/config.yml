@@ -63,6 +63,13 @@ jobs:
               --network wp-network \
               wordpress:cli plugin install classic-editor \
                 --activate \
+      - run:
+          name: execute Ghost Inspector test(s)
+          command: |
+            docker run \
+              -e APP_PORT=wp-container:80 \
+              -e NGROK_TOKEN=1q6F01SdLmpSt988S2jLRepTLp4_2dAWZMvj7pGfFJE8YRLtg \
+              --network wp-network \
 
 workflows:
   test:
