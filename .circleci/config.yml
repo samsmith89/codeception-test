@@ -26,7 +26,8 @@ jobs:
               -e MYSQL_DATABASE=wordpress \
               --name db \
               --network wp-network \
-              mysql:5.7
+              mysql:5.7 \
+              mysql -V
       - run:
           name: Setup WordPress
           command: |
@@ -43,6 +44,7 @@ jobs:
           name: Install WordPress
           command: |
             docker run -it --rm \
+              mysql -V \
               --volumes-from wp-container \
               --network wp-network \
               wordpress:cli core install \
